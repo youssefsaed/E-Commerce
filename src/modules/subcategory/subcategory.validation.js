@@ -3,7 +3,7 @@ import Joi from "joi";
 
 export const addSubCategorySchema={
     body:Joi.object().keys({
-        name:Joi.string().min(2).max(15).required(),
+        name:Joi.string().min(2).max(50).required(),
         category:Joi.string().hex().length(24).required()
     })
 }
