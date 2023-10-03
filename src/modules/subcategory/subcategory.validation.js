@@ -9,7 +9,7 @@ export const addSubCategorySchema={
 }
 export const updateSubCategorySchema={
     body:Joi.object().keys({
-        name:Joi.string().min(2).max(15),
+        name:Joi.string().min(2).max(50),
         category:Joi.string().hex().length(24)
     }),
     params:Joi.object().keys({
