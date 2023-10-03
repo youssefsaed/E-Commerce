@@ -3,7 +3,7 @@ import Joi from "joi";
 
 export const addProductSchema = {
     body: Joi.object().keys({
-        title: Joi.string().min(2).max(50).required(),
+        title: Joi.string().min(2).max(200).required(),
         price: Joi.number().required(),
         priceAfterDiscount: Joi.number().required(),
         ratingAvg: Joi.number().min(1).max(5).required(),
@@ -18,7 +18,7 @@ export const addProductSchema = {
 }
 export const updateProductSchema = {
     body: Joi.object().keys({
-        title: Joi.string().min(2).max(50),
+        title: Joi.string().min(2).max(200),
         price: Joi.number(),
         priceAfterDiscount: Joi.number(),
         ratingAvg: Joi.number().min(1).max(5),
