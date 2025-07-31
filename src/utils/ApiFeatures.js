@@ -15,7 +15,7 @@ export class ApiFeatures {
     //filteration
     filter() {
         let filterObj = { ...this.reqQuery }
-        const exception = ['page', 'sort', 'fields', 'keyword']
+        const exception = ['page', 'sort', 'keyword']
         exception.forEach(q => {
             delete filterObj[q]
         })
@@ -40,19 +40,13 @@ export class ApiFeatures {
                 $or: [
                     { title: { $regex: this.reqQuery.keyword, $options: 'i' } },     // i => insensitive
                     { description: { $regex: this.reqQuery.keyword, $options: 'i' } },
+                    { name: { $regex: this.reqQuery.keyword, $options: 'i' } }
                 ]
             })
         }
         return this
     }
-    //selcted fields
-    fields() {
-        if (this.reqQuery.fields) {
-            const fields = this.reqQuery.fields.split(',').join(' ')
-           this.reuseQuery.select(fields)
-        }
-        return this
-    }
+ 
 }
 
 

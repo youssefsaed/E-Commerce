@@ -14,7 +14,7 @@ reviewRouter.route('/')
 
 reviewRouter.route('/:id')
     .put(Auth(), allowTo('user'), validation(updateReviewSchema), asyncHandler(review.updateReview))
-    .delete(Auth(), allowTo('admin', 'user'), validation(reviewSchema), asyncHandler(review.deleteReview))
+    .delete(Auth(), validation(reviewSchema), asyncHandler(review.deleteReview))
 
-reviewRouter.get('/getReview/:id',validation(reviewSchema), asyncHandler(review.getReview))
+reviewRouter.get('/getReview/:id', validation(reviewSchema), asyncHandler(review.getReview))
 export default reviewRouter

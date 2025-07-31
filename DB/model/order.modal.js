@@ -35,7 +35,9 @@ const orderSchema = new mongoose.Schema({
 
 }, { timestamps: true })
 
-
+orderSchema.pre(['find','findOne'], function () {
+    this.populate('cartItems.product').populate('user', 'name')
+})
 
 const orderModal = mongoose.model('order', orderSchema)
 

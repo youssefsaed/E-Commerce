@@ -11,14 +11,13 @@ const orderRouter = Router()
 
 orderRouter.route('/')
     .get(Auth(), allowTo('user'), asyncHandler(order.getOrder))
-orderRouter.get('/orders', asyncHandler(order.getAllOrder))
+orderRouter.get('/all', Auth(), allowTo('admin'), asyncHandler(order.getAllOrder))
 
 
 
 
 orderRouter.route('/:id')
-    .post(Auth(), allowTo('user'), validation(OrderSchema), asyncHandler(order.order))
-orderRouter.post('/checkout/:id', Auth(), allowTo('user'), validation(OrderSchema), asyncHandler(order.creatCheckOutSession))
+    .post(Auth(), allowTo('user'), validation(OrderSchema), asyncHandler(order.cashOrder))
     .delete(Auth(), allowTo('user'), validation(cancelOrderScehma), asyncHandler(order.cancelOrder))
 
 

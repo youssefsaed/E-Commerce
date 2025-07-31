@@ -12,14 +12,14 @@ const cartRouter = Router()
 cartRouter.route('/')
     .post(Auth(), allowTo('user'), validation(addCartSchema), asyncHandler(cart.addCart))
     .patch(Auth(), allowTo('user'), asyncHandler(cart.applyCoupon))
-    .get(Auth(), allowTo('user', 'admin'), asyncHandler(cart.getCart))
+    .get(Auth(), allowTo('user'), asyncHandler(cart.getCart))
 
-cartRouter.get('/allCart', asyncHandler(cart.getAllCart))
+cartRouter.get('/allCart',Auth(),allowTo('admin'), asyncHandler(cart.getAllCart))
 
 
 cartRouter.route('/:id')
     .put(Auth(), allowTo('user'), validation(updateCartSchema), asyncHandler(cart.updateQuantity))
-    .delete(Auth(), allowTo('admin', 'user'), validation(CartSchema), asyncHandler(cart.deleteProductFromCart))
+    .delete(Auth(), allowTo('user'), validation(CartSchema), asyncHandler(cart.deleteProductFromCart))
 
 
 

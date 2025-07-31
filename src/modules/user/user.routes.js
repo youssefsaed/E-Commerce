@@ -3,20 +3,23 @@ import * as user from './user.controller.js'
 import asyncHandler from "../../utils/errorHanddling.js";
 import { validation } from "../../middleware/validation.js";
 import Auth from "../../middleware/authroization.js";
+import { addUserSchema, changePasswordSchema, forgetPasswordSchema, resetPasswordSchema, updateUserSchema, userSchema } from "./user.validation.js";
 import allowTo from "../../middleware/allowTo.js";
-import { changePasswordSchema, updateUserSchema, userSchema } from "./user.validation.js";
 const userRouter = Router()
 
 
 userRouter.route('/')
-    .get(asyncHandler(user.getAllUser))
-    .put(Auth(), allowTo('admin', 'user'), validation(updateUserSchema), asyncHandler(user.updateUser))
-    .delete(Auth(), allowTo('admin', 'user'), asyncHandler(user.deleteUser))
-    .patch(Auth(), allowTo('admin', 'user'), validation(changePasswordSchema), user.changePassword)
+    .post(Auth(), allowTo('superAdmin'), validation(addUserSchema), asyncHandler(user.addUser))
+    .get(Auth(), allowTo('superAdmin'), asyncHandler(user.getAllUser))
+    .put(Auth(), validation(updateUserSchema), asyncHandler(user.updateUser))
+    .delete(Auth(), allowTo('superAdmin'),validation(userSchema), asyncHandler(user.deleteUser))
+    .patch(Auth(), validation(changePasswordSchema), user.changePassword)
+userRouter.patch('/forgetpassword', validation(forgetPasswordSchema), user.forgetPassword)
+userRouter.patch('/resetpassword/:token', validation(resetPasswordSchema), user.resetPassword)
 
 
 userRouter.route('/:id')
-    .get(validation(userSchema),asyncHandler(user.getUser))
+    .get(validation(userSchema), asyncHandler(user.getUser))
 
 
 

@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const categorySchema = new mongoose.Schema({
     name: {
         type: String,
-        unique: [true, 'name is required'],
+        unique: [true, 'name is unique'],
         trim: true,
         required: true,
         minLength: [2, 'too short category name']

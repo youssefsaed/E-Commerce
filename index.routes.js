@@ -11,6 +11,8 @@ import addressRouter from "./src/modules/addresses/address.routes.js";
 import couponRouter from "./src/modules/coupon/coupon.routes.js";
 import cartRouter from "./src/modules/cart/cart.routes.js";
 import orderRouter from "./src/modules/order/order.routes.js";
+import AppError from "./src/utils/appError.js";
+
 
 const baseUrl = '/api/v1'
 
@@ -29,10 +31,10 @@ function init(app) {
     app.use(`${baseUrl}/order`, orderRouter)
 
     app.all('*', (req, res, next) => {
-        next(new Error("invalid url - can't access this endpoint" + req.originalUrl, { cause: 404 }))
+        next(new AppError("invalid url - can't access this endpoint" + req.originalUrl, 404))
     })
     app.use((err, req, res, next) => {
-        res.status(err['cause'] || 500).json({ Error: err.message })
+        res.status(err['status']||500).json({ Error: err.message })
     })
 }
 

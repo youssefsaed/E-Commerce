@@ -1,7 +1,8 @@
 import cartModal from "../../../DB/model/cart.modal.js"
 import couponModal from "../../../DB/model/coupon.modal.js"
 import productModal from "../../../DB/model/product.modal.js"
-import { ApiFeatures } from "../../utils/ApiFeatures.js"
+import AppError from "../../utils/appError.js"
+import Refactor from "../handler/reFactor.js"
 
 function totalCalc(cart) {
     let totalPrice = 0
@@ -16,11 +17,11 @@ function totalCalc(cart) {
 }
 const addCart = async (req, res, next) => {
     const product = await productModal.findById(req.body.product)
-    if (!product) return next(new Error('product not found', { cause: 404 }))
+    if (!product) return next(new AppError('product not found', 404))
     req.body.price = product.price
     const checkCart = await cartModal.findOne({ user: req.user._id })
     if (!checkCart) {
-        const cart = new cartModal({ user: req.user._id, cartItems: [req.body] })
+        const cart = new cartModal({ user: req.user._id, cartItems: req.body })
         totalCalc(cart)
         await cart.save()
         return res.json({ message: 'success', cart })
@@ -45,10 +46,10 @@ const addCart = async (req, res, next) => {
 
 const deleteProductFromCart = async (req, res, next) => {
     const checkCart = await cartModal.findOne({ user: req.user._id })
-    if (!checkCart) return next(new Error('cart not found', { cause: 404 }))
+    if (!checkCart) return next(new AppError('cart not found', 404))
 
     const cartItem = checkCart.cartItems.find(elm => elm._id == req.params.id)
-    if (!cartItem) return next(new Error('cart item not found', { cause: 404 }))
+    if (!cartItem) return next(new AppError('cart item not found', 404))
 
     const cart = await cartModal.findOneAndUpdate({ user: req.user._id }, {
         $pull:
@@ -67,10 +68,10 @@ const deleteProductFromCart = async (req, res, next) => {
 
 const updateQuantity = async (req, res, next) => {
     const checkCart = await cartModal.findOne({ user: req.user._id })
-    if (!checkCart) return next(new Error('cart not found', { cause: 404 }))
+    if (!checkCart) return next(new AppError('cart not found', 404))
 
     const cartItem = checkCart.cartItems.find(elm => elm._id == req.params.id)
-    if (!cartItem) return next(new Error('cart item not found', { cause: 404 }))
+    if (!cartItem) return next(new AppError('cart item not found', 404))
 
     cartItem.quantity = req.body.quantity
     totalCalc(checkCart)
@@ -84,23 +85,17 @@ const updateQuantity = async (req, res, next) => {
 
 const getCart = async (req, res, next) => {
     const cart = await cartModal.findOne({ user: req.user._id }).populate('cartItems.product')
-    if (!cart) return next(new Error('cart not found', { cause: 404 }))
+    if (!cart) return next(new AppError('cart not found', 404))
     return res.json({ message: 'success', cart })
 }
 
-const getAllCart = async (req, res, next) => {
-    const apiFeatures = new ApiFeatures(cartModal.find(), req.query)
-        .paginate().filter().sort().search().fields()
-    const carts = await apiFeatures.reuseQuery
-    return res.json({ message: 'success', page: apiFeatures.page, carts })
-}
 
 const applyCoupon = async (req, res, next) => {
     const coupon = await couponModal.findOne({ code: req.body.code, expires: { $gt: Date.now() } })
-    if (!coupon) return next(new Error('coupon not active', { cause: 404 }))
+    if (!coupon) return next(new AppError('coupon not active', 404))
 
     const cart = await cartModal.findOne({ user: req.user._id })
-    if (!cart) return next(new Error('cart not found', { cause: 404 }))
+    if (!cart) return next(new AppError('cart not found', 404))
 
     cart.totalPriceAfterDiscount = cart.totalPrice - (cart.totalPrice * coupon.discount) / 100
     cart.discount = coupon.discount
@@ -109,8 +104,9 @@ const applyCoupon = async (req, res, next) => {
     await cart.save()
 
     return res.status(201).json({ message: 'success', cart })
-
 }
+
+const getAllCart = new Refactor(cartModal).getAll()
 
 export {
     addCart,

@@ -1,13 +1,13 @@
 import multer from "multer"
-
+import { v4 as uuidv4 } from 'uuid';
 const option = (folderName) => {
     const storage = multer.diskStorage({
         destination: function (req, file, cb) {
             cb(null, `upload/${folderName}`)
         },
         filename: function (req, file, cb) {
-            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-            cb(null, uniqueSuffix + '-' + file.originalname)
+      
+            cb(null, uuidv4() + '-' + file.originalname)
         }
     })
     function fileFilter(req, file, cb) {

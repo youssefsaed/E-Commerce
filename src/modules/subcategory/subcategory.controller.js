@@ -2,15 +2,17 @@ import slugify from "slugify"
 import subCategoryModal from "../../../DB/model/subcategory.modal.js"
 import categoryModal from "../../../DB/model/category.modal.js"
 import { ApiFeatures } from "../../utils/ApiFeatures.js"
+import AppError from "../../utils/appError.js"
+import Refactor from "../handler/reFactor.js"
 
 const addSubCategory = async (req, res, next) => {
     const { name } = req.body
     const { category } = req.body
     const newSubCategory = new subCategoryModal({ name, slug: slugify(name), category })
-    const check = await categoryModal.findById(category)
-    if (!check) return next(new Error('category id not found', { cause: 404 }))
+    const found = await categoryModal.findById(category)
+    if (!found) return next(new AppError('category id not found', 404))
     const subCategory = await newSubCategory.save()
-    return res.json({ message: 'success', subCategory })
+    return res.status(201).json({ message: 'success', subCategory })
 }
 
 const getAllSubCategory = async (req, res, next) => {
@@ -19,35 +21,23 @@ const getAllSubCategory = async (req, res, next) => {
         filter = { category: req.params.categoryId }
     }
     const apiFeatures = new ApiFeatures(subCategoryModal.find(filter), req.query)
-        .paginate().filter().sort().search().fields()
+        .paginate().filter().sort().search()
     const subCategories = await apiFeatures.reuseQuery
-    return res.json({ message: 'success', subCategories })
-}
-
-
-const getSubCategory = async (req, res, next) => {
-    const { id } = req.params
-    const subCategory = await subCategoryModal.findById(id)
-    if (!subCategory) return next(new Error('subCategory not found', { cause: 404 }))
-    return res.json({ message: 'success', subCategory })
+    return res.status(200).json({ message: 'success', subCategories })
 }
 
 const updateSubCategory = async (req, res, next) => {
     const { name, category } = req.body
     const { id } = req.params
-    const check = await categoryModal.findById(category)
-    if (!check) return next(new Error('category id not found', { cause: 404 }))
-    const result = await subCategoryModal.findByIdAndUpdate({ _id: id }, { name, slug: slugify(name), category }, { new: true })
-    if (!result) return next(new Error('subcategory not found', { cause: 404 }))
-    return res.status(200).json({ message: 'success', result })
+    const found = await categoryModal.findById(category)
+    if (!found) return next(new AppError('category id not found', 404))
+        const result = await subCategoryModal.findByIdAndUpdate({ _id: id }, { name, slug: slugify(name), category }, { new: true })
+    if (!result) return next(new AppError('subcategory not found', 404))
+        return res.status(200).json({ message: 'success', result })
 }
 
-const deleteSubCategory = async (req, res, next) => {
-    const { id } = req.params
-    const result = await subCategoryModal.findByIdAndDelete({ _id: id })
-    if (!result) return next(new Error('subcategory not found', { cause: 404 }))
-    return res.json({ message: 'success', result })
-}
+const getSubCategory = new Refactor(subCategoryModal,'subCategory not found').getSpecificDocument()
+const deleteSubCategory = new Refactor(subCategoryModal,'subcategory not found').deleteOne()
 
 export {
     addSubCategory,

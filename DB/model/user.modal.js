@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
     profilePic: String,
     role: {
         type: String,
-        enum: ['user', 'admin'],
+        enum: ['user', 'admin','superAdmin'],
         default: 'user'
     },
     isActive: {
@@ -36,16 +36,17 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    changePasswordDate:Date,
-    wishlist:[{
-        type:mongoose.Types.ObjectId,
-        ref:'product'
+    changePasswordDate: Date,
+    wishlist: [{
+        type: mongoose.Types.ObjectId,
+        ref: 'product'
     }],
-    address:[{
-        city:String,
-        street:String,
-        phone:String
-    }]
+    address: [{
+        city: String,
+        street: String,
+        phone: String
+    }],
+    codeVerify: String
 
 }, { timestamps: true })
 
@@ -55,6 +56,7 @@ userSchema.pre('save', function () {
 userSchema.methods.cheackPassword = function (password) {
     return bcrypt.compareSync(password, this.password) ? true : false
 }
+
 const userModal = mongoose.model('user', userSchema)
 
 

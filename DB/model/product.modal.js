@@ -66,22 +66,26 @@ const productSchema = new mongoose.Schema({
         ref: 'brand',
         required: [true, 'product brand required']
     },
-    reviews:[{
-        type: mongoose.Types.ObjectId,
-        ref:'review'
-    }],
     imgCover: String,
     images: [String]
 
-}, { timestamps: true })
+}, { timestamps: true, toJSON: { virtuals: true } }) //Virtuals in JSON
+
+//virtual 
+productSchema.virtual('reviews', {
+    ref: 'review',
+    localField: '_id',
+    foreignField: 'product',
+});
 
 productSchema.post('init', (doc) => {
     doc.imgCover = process.env.BASE_URL + 'product/' + doc.imgCover
     doc.images = doc.images.map(path => process.env.BASE_URL + 'product/' + path)
 })
 
-productSchema.pre(/^find/,function(){
-    this.populate('reviews','comment')
+//populate
+productSchema.pre(/^find/, function () {
+    this.populate('reviews', 'comment -_id -product')
 })
 
 const productModal = mongoose.model('product', productSchema)
